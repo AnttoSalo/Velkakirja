@@ -18,28 +18,6 @@ except mariadb.Error as e:
 # Get Cursor
 cur = conn.cursor()
 
-window = tk.Tk()
-frame = tk.Frame(window)
-frame.pack()
-window.geometry("800x600")
-
-def submit():
- 
-    name=name_var.get()
-    money=money_var.get()
-     
-    print("The name is : " + name)
-    print("The money is : " + money)
-     
-    name_var.set("")
-    money_var.set("")
-    cur.execute(
-    "INSERT INTO debts (fullName,amount) VALUES (?, ?)", 
-    (name, money))
-    conn.commit()
-    cur.close()
-    conn.close()
-
 class TkinterApp(tk.Tk):
     def __init__(self, *args, **kwargs):
          
@@ -55,7 +33,7 @@ class TkinterApp(tk.Tk):
   
         # initializing frames to an empty array
         self.frames = {} 
-        for F in (StartPage, Page1, Page2):
+        for F in (StartPage, NewDebtPage):
   
             frame = F(container, self)
   
@@ -72,19 +50,61 @@ class TkinterApp(tk.Tk):
         frame.tkraise()
 
 class StartPage(tk.Frame):
-    pass
-name_var=tk.StringVar()
-money_var=tk.StringVar()
-name_entry=tk.Entry(frame,textvariable=name_var)
-name_label=tk.Label(frame, text="Nimi")
-money_entry=tk.Entry(frame,textvariable=money_var)
-money_label=tk.Label(frame, text="Summa")
-sub_btn=tk.Button(frame,text = 'Submit', command = submit)
+    def __init__(self, parent, controller):
+        super().__init__(parent)
+        
+        # Create widgets for the start page
+        label = tk.Label(self, text="This is the start page")
+        label.pack()
+        
+        button1 = tk.Button(self, text="Uusi velka", 
+                            command=lambda: controller.show_frame(NewDebtPage))
+        button1.pack()
+        
+"""         button2 = tk.Button(self, text="Go to Page Two", 
+                            command=lambda: controller.show_frame(PageTwo))
+        button2.pack() """
 
-name_label.grid(row=0,column=0)
-name_entry.grid(row=0,column=1)
-money_label.grid(row=1,column=0)
-money_entry.grid(row=1,column=1)
-sub_btn.grid(row=2,column=1)
 
-window.mainloop()
+
+
+class NewDebtPage(tk.Frame):
+    def __init__(self, parent, controller):
+        super().__init__(parent)
+        
+        self.first_name_var = tk.StringVar()
+        self.last_name_var = tk.StringVar()
+        self.money_var = tk.StringVar()
+
+        first_name_label = tk.Label(self, text="Etunimi")
+        first_name_label.grid(row=0,column=0)
+        first_name_entry = tk.Entry(self, textvariable=self.first_name_var)
+        first_name_entry.grid(row=0,column=1)
+        
+        last_name_label = tk.Label(self, text="Sukunimi")
+        last_name_label.grid(row=1,column=0)
+        last_name_entry = tk.Entry(self, textvariable=self.last_name_var)
+        last_name_entry.grid(row=1,column=1)
+        
+        money_label = tk.Label(self, text="Summa")
+        money_label.grid(row=2,column=0)
+        money_entry = tk.Entry(self, textvariable=self.money_var)
+        money_entry.grid(row=2,column=1)
+
+        sub_btn = tk.Button(self, text = 'Submit', command = self.submit)
+        sub_btn.grid(row=3,column=1)
+        
+    def submit(self):
+        first_name = self.first_name_var.get()
+        last_name = self.last_name_var.get()
+        money = self.money_var.get()
+
+        cur.execute("INSERT INTO debts (first_name, last_name, amount) VALUES (?, ?, ?)", (first_name, last_name, money))
+        conn.commit()
+
+class SummaryPage(tk.Frame):
+    def __init__(self, parent, controller):
+        super().__init__(parent)
+
+app = TkinterApp()    
+app.mainloop()
