@@ -25,7 +25,7 @@ class TkinterApp(tk.Tk):
         tk.Tk.__init__(self, *args, **kwargs)
          
         # creating a container
-        container = tk.Frame(self) 
+        container = tk.Frame(self)
         container.pack(side = "top", fill = "both", expand = True)
   
         container.grid_rowconfigure(0, weight = 1)
@@ -33,7 +33,7 @@ class TkinterApp(tk.Tk):
   
         # initializing frames to an empty array
         self.frames = {} 
-        for F in (StartPage, NewDebtPage):
+        for F in (StartPage, NewDebtPage, SummaryPage):
   
             frame = F(container, self)
   
@@ -61,12 +61,9 @@ class StartPage(tk.Frame):
                             command=lambda: controller.show_frame(NewDebtPage))
         button1.pack()
         
-"""         button2 = tk.Button(self, text="Go to Page Two", 
-                            command=lambda: controller.show_frame(PageTwo))
-        button2.pack() """
-
-
-
+        button2 = tk.Button(self, text="Yhteenveto", 
+                            command=lambda: controller.show_frame(SummaryPage))
+        button2.pack() 
 
 class NewDebtPage(tk.Frame):
     def __init__(self, parent, controller):
@@ -105,6 +102,23 @@ class NewDebtPage(tk.Frame):
 class SummaryPage(tk.Frame):
     def __init__(self, parent, controller):
         super().__init__(parent)
+        cur.execute("SELECT * FROM debts")
+        rows = cur.fetchall()
+        for i, row in enumerate(rows):
+            print(row)
+            label_text = ""
+            for i2, data in enumerate(row):
+                if i2 == 1 or i2 == 2 or i2==3:
+                    print("i2",i2)
+                    print(data)
+                    label_text += str(data) + " "
+                if i2 == 3:
+                    i2 = 0
+            label = tk.Label(self, text=label_text)
+            label.grid(row=i//4, column=i%4)
+    
 
 app = TkinterApp()    
 app.mainloop()
+cur.close()
+conn.close()
