@@ -34,12 +34,8 @@ class TkinterApp(tk.Tk):
         # initializing frames to an empty array
         self.frames = {} 
         for F in (StartPage, NewDebtPage, SummaryPage):
-  
+
             frame = F(container, self)
-  
-            # initializing frame of that object from
-            # startpage, page1, page2 respectively with
-            # for loop
             self.frames[F] = frame
   
             frame.grid(row = 0, column = 0, sticky ="nsew")
@@ -102,23 +98,16 @@ class NewDebtPage(tk.Frame):
 class SummaryPage(tk.Frame):
     def __init__(self, parent, controller):
         super().__init__(parent)
-        cur.execute("SELECT * FROM debts")
+        cur.execute("SELECT first_name, last_name, amount FROM debts")
         rows = cur.fetchall()
         for i, row in enumerate(rows):
-            print(row)
-            label_text = ""
-            for i2, data in enumerate(row):
-                if i2 == 1 or i2 == 2 or i2==3:
-                    print("i2",i2)
-                    print(data)
-                    label_text += str(data) + " "
-                if i2 == 3:
-                    i2 = 0
+            label_text = f"{row[0]} {row[1]}: {row[2]}"
             label = tk.Label(self, text=label_text)
-            label.grid(row=i//4, column=i%4)
+            label.grid(row=i, column=0)
     
 
-app = TkinterApp()    
+app = TkinterApp()  
+app.geometry("800x600")  
 app.mainloop()
 cur.close()
 conn.close()
